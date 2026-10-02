@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مون بلس | ديمو صفحة منتج</title>
+<meta name="description" content="ديمو ثابت لصفحة منتج بأسلوب قالب ANGEL لمتجر مون بلس">
+<link rel="icon" href="https://cdn.files.salla.network/theme/1001571749/28dcd55d-9398-4e40-9de0-ea8480752be3.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ====== إعدادات القالب (عدّلها من هنا) ====== */
+  :root{
+    --primary:#f5b83d;          /* لون الأزرار والتمييز */
+    --primary-dark:#d9981c;
+    --brand:#071b2e;            /* لون المتجر الأساسي */
+    --bg:#05090f;
+    --surface:#0d1825;
+    --surface-2:#132235;
+    --border:#1f3349;
+    --text:#ffffff;
+    --text-sec:#a9b6c4;
+    --sale:#ef4444;
+    --ok:#22c55e;
+    --radius:10px;
+    --ad-bg:#f5b83d;
+    --ad-text:#071b2e;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  img{max-width:100%;display:block}
+  button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+  .container{max-width:1200px;margin:0 auto;padding:0 16px}
+
+  /* ====== شريط الإعلان المتحرك ====== */
+  .ad-bar{background:var(--ad-bg);color:var(--ad-text);overflow:hidden;position:relative;font-weight:600;font-size:14px}
+  .ad-track{display:flex;gap:48px;white-space:nowrap;padding:8px 0;animation:marquee 25s linear infinite;width:max-content}
+  .ad-track span::before{content:"✓";margin-left:8px}
+  @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(50%)}}
+  .ad-close{position:absolute;top:50%;left:10px;transform:translateY(-50%);width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.12);font-size:14px;line-height:24px}
+
+  /* ====== الهيدر ====== */
+  header{position:sticky;top:0;z-index:20;background:rgba(5,9,15,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+  .header-row{display:flex;align-items:center;justify-content:space-between;height:72px}
+  .header-side{display:flex;align-items:center;gap:6px;flex:1}
+  .header-side.end{justify-content:flex-end}
+  .icon-btn{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:18px;transition:background .2s}
+  .icon-btn:hover{background:var(--surface-2)}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:20px}
+  .logo img{height:44px;width:44px;border-radius:12px;object-fit:cover;background:var(--brand)}
+  .cart-count{position:relative}
+  .cart-count b{position:absolute;top:2px;left:2px;background:var(--primary);color:var(--brand);font-size:10px;min-width:16px;height:16px;border-radius:8px;display:grid;place-items:center}
+
+  /* ====== القائمة الجانبية ====== */
+  .drawer{position:fixed;inset:0;z-index:50;pointer-events:none}
+  .drawer .overlay{position:absolute;inset:0;background:rgba(0,0,0,.6);opacity:0;transition:opacity .3s}
+  .drawer nav{position:absolute;top:0;right:0;height:100%;width:min(320px,85vw);background:var(--surface);transform:translateX(100%);transition:transform .3s;padding:20px;overflow-y:auto}
+  .drawer.open{pointer-events:auto}
+  .drawer.open .overlay{opacity:1}
+  .drawer.open nav{transform:translateX(0)}
+  .drawer nav a{display:block;padding:12px 8px;border-bottom:1px solid var(--border);font-weight:500}
+  .drawer nav a:hover{color:var(--primary)}
+
+  /* ====== مسار التنقل ====== */
+  .breadcrumb{background:var(--surface);font-size:13px;color:var(--text-sec)}
+  .breadcrumb .container{padding-top:12px;padding-bottom:12px}
+  .breadcrumb a:hover{color:var(--primary)}
+
+  /* ====== المنتج ====== */
+  .product{display:grid;grid-template-columns:2fr 3fr;gap:32px;padding:24px 16px 48px}
+  .gallery{position:sticky;top:96px;align-self:start}
+  .main-img{position:relative;aspect-ratio:1;border-radius:var(--radius);overflow:hidden;background:linear-gradient(135deg,var(--brand),#0f3a5f)}
+  .main-img .slide{position:absolute;inset:0;display:grid;place-items:center;opacity:0;transition:opacity .4s;text-align:center;padding:24px}
+  .main-img .slide.active{opacity:1}
+  .slide .moon{font-size:96px;line-height:1}
+  .slide h3{font-size:24px;margin-top:12px}
+  .slide p{color:var(--text-sec)}
+  .promo-tag{position:absolute;top:12px;right:12px;z-index:2;background:var(--brand);border:1px solid var(--primary);color:var(--primary);font-size:13px;font-weight:600;padding:4px 12px;border-radius:999px}
+  .wish{position:absolute;top:12px;left:12px;z-index:2;display:flex;gap:8px}
+  .wish button{width:38px;height:38px;border-radius:50%;background:rgba(0,0,0,.4);font-size:16px}
+  .wish button.on{color:var(--sale)}
+  .thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+  .thumbs button{aspect-ratio:1;border-radius:8px;background:var(--surface-2);border:2px solid transparent;font-size:28px}
+  .thumbs button.active{border-color:var(--primary)}
+
+  .sub-title{color:var(--text-sec);font-size:14px}
+  h1{font-size:clamp(20px,3vw,26px);line-height:1.5;margin:4px 0 6px}
+  .rating{display:flex;align-items:center;gap:6px;color:var(--primary);font-size:15px}
+  .rating small{color:var(--text-sec)}
+  .price-row{display:flex;align-items:center;flex-wrap:wrap;gap:14px;margin:16px 0 8px}
+  .price{font-size:26px;font-weight:700;color:var(--sale)}
+  .old-price{color:var(--text-sec);text-decoration:line-through}
+  .save{display:flex;align-items:stretch;height:26px;font-size:13px;font-weight:600;border-radius:4px;overflow:hidden}
+  .save i{background:var(--sale);padding:0 6px;display:grid;place-items:center;border-left:2px dotted #fff;font-style:normal}
+  .save > span{background:var(--sale);padding:0 8px;display:grid;place-items:center}
+  .stock{display:flex;align-items:center;gap:8px;color:var(--ok);font-weight:600}
+  .stock::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 4px rgba(34,197,94,.2);animation:pulse 1.6s infinite}
+  @keyframes pulse{50%{box-shadow:0 0 0 7px rgba(34,197,94,0)}}
+
+  .countdown{display:flex;align-items:center;gap:10px;margin:16px 0;padding:12px 14px;background:var(--surface);border:1px dashed var(--sale);border-radius:var(--radius);flex-wrap:wrap}
+  .countdown strong{color:var(--sale)}
+  .cd-boxes{display:flex;gap:6px;direction:ltr}
+  .cd-boxes div{background:var(--surface-2);min-width:46px;text-align:center;border-radius:6px;padding:4px 0;font-weight:700}
+  .cd-boxes small{display:block;font-size:10px;color:var(--text-sec);font-weight:400}
+
+  .sold{display:flex;justify-content:space-between;align-items:center;background:var(--surface);border-radius:var(--radius);padding:12px 16px;margin:12px 0}
+  .sold .t{color:#f87171;font-weight:600}
+  .sold .n{font-weight:700;font-size:18px}
+
+  .options{margin:16px 0}
+  .options label.title{display:block;font-weight:600;margin-bottom:8px}
+  .opt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+  .opt-grid input{display:none}
+  .opt-grid label{display:block;text-align:center;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);transition:.2s;font-size:14px}
+  .opt-grid label small{display:block;color:var(--text-sec)}
+  .opt-grid input:checked+label{border-color:var(--primary);background:rgba(245,184,61,.08);color:var(--primary)}
+
+  .buy-bar{display:flex;gap:10px;align-items:center;background:var(--surface);padding:16px;border-radius:var(--radius);margin-top:12px}
+  .qty{display:flex;align-items:center;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+  .qty button{width:38px;height:44px;font-size:18px}
+  .qty input{width:42px;text-align:center;background:none;border:0;color:var(--text);font:inherit;font-weight:600}
+  .btn-primary{flex:1;height:46px;border-radius:8px;background:var(--primary);color:var(--brand);font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s}
+  .btn-primary:hover{background:var(--primary-dark)}
+  .btn-outline{height:46px;padding:0 18px;border-radius:8px;border:1px solid var(--primary);color:var(--primary);font-weight:600}
+
+  /* التبويبات */
+  .tabs{margin-top:24px}
+  .tab-btns{display:flex;gap:4px}
+  .tab-btns button{padding:10px 18px;border-radius:8px 8px 0 0;background:var(--surface-2);color:var(--text-sec);font-weight:600}
+  .tab-btns button.active{background:var(--surface);color:var(--primary)}
+  .tab-panel{display:none;background:var(--surface);padding:20px;border-radius:0 0 var(--radius) var(--radius)}
+  .tab-panel.active{display:block}
+  .tab-panel h2{font-size:19px;margin:8px 0}
+  .tab-panel h4{color:var(--primary);margin-top:12px}
+  .tab-panel ul{padding-right:20px;margin:8px 0;color:var(--text-sec)}
+  .tab-panel p{color:var(--text-sec)}
+  .review{border-bottom:1px solid var(--border);padding:12px 0}
+  .review:last-child{border:0}
+  .review .head{display:flex;justify-content:space-between;font-weight:600}
+  .review .head span{color:var(--primary);font-size:13px}
+  .review p{margin-top:4px}
+
+  .features{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+  .features div{background:var(--surface);border-radius:var(--radius);padding:12px 8px;text-align:center;font-size:13px;font-weight:600}
+  .features div b{display:block;font-size:20px;color:var(--primary)}
+
+  .pay{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:16px}
+  .pay span{background:#fff;color:#111;font-size:12px;font-weight:700;padding:6px 10px;border-radius:6px}
+
+  /* منتجات مقترحة */
+  .related{padding:24px 16px 48px}
+  .related h2{font-size:20px;margin-bottom:16px}
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;text-align:center;position:relative;transition:transform .2s,border-color .2s}
+  .card:hover{transform:translateY(-4px);border-color:var(--primary)}
+  .card .img{aspect-ratio:1;display:grid;place-items:center;font-size:56px;background:linear-gradient(135deg,var(--brand),#103a5c);position:relative;overflow:hidden}
+  .card .img::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.15) 50%,transparent 70%);transform:translateX(-100%);transition:transform .6s}
+  .card:hover .img::after{transform:translateX(100%)}
+  .card .body{padding:12px}
+  .card .cat{font-size:12px;color:var(--text-sec)}
+  .card h3{font-size:15px;margin:4px 0}
+  .card .p{color:var(--sale);font-weight:700}
+  .card .p del{color:var(--text-sec);font-weight:400;font-size:13px;margin-right:6px}
+  .card button{margin-top:8px;width:100%;height:38px;border-radius:8px;border:1px solid var(--primary);color:var(--primary);font-weight:600}
+  .card button:hover{background:var(--primary);color:var(--brand)}
+  .card .badge{position:absolute;top:8px;right:8px;z-index:1;background:var(--sale);font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}
+
+  /* الفوتر */
+  footer{background:var(--surface);border-top:1px solid var(--border);padding:32px 0 16px;margin-top:24px}
+  .foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:24px}
+  footer h4{margin-bottom:10px}
+  footer a{display:block;color:var(--text-sec);font-size:14px;margin-bottom:8px}
+  footer a:hover{color:var(--primary)}
+  footer p{color:var(--text-sec);font-size:14px}
+  .copy{text-align:center;color:var(--text-sec);font-size:13px;border-top:1px solid var(--border);margin-top:24px;padding-top:16px}
+
+  /* واتساب + التوست */
+  .wa{position:fixed;bottom:24px;right:16px;z-index:30;width:52px;height:52px;border-radius:50%;background:#22c55e;display:grid;place-items:center;box-shadow:0 6px 20px rgba(0,0,0,.4)}
+  .wa svg{width:28px;height:28px;fill:#fff}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translate(-50%,20px);opacity:0;visibility:hidden;z-index:60;background:var(--surface-2);border:1px solid var(--primary);padding:12px 20px;border-radius:var(--radius);display:flex;gap:10px;align-items:center;transition:transform .35s,opacity .35s,visibility .35s;max-width:calc(100% - 32px)}
+  .toast.show{transform:translate(-50%,0);opacity:1;visibility:visible}
+
+  /* شاشة التحميل */
+  .loader{position:fixed;inset:0;z-index:100;background:var(--bg);display:grid;place-items:center;transition:opacity .4s}
+  .loader.hide{opacity:0;pointer-events:none}
+  .loader div{font-size:56px;animation:spin 1.2s ease-in-out infinite}
+  @keyframes spin{50%{transform:rotate(-20deg) scale(1.1)}}
+
+  /* موبايل */
+  @media (max-width:860px){
+    .product{grid-template-columns:1fr;padding:0 0 32px}
+    .gallery{position:static}
+    .main-img{border-radius:0}
+    .thumbs{padding:0 16px}
+    .info{padding:0 16px}
+    .cards{grid-template-columns:repeat(2,1fr)}
+    .foot-grid{grid-template-columns:1fr}
+    .buy-bar{position:fixed;bottom:0;left:0;right:0;z-index:25;border-radius:0;border-top:1px solid var(--border);margin:0}
+    body{padding-bottom:80px}
+    .wa{bottom:96px}
+    .toast{bottom:96px}
+    .desktop-only{display:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="loader" id="loader"><div>🌙</div></div>
+
+<!-- شريط الإعلان -->
+<div class="ad-bar" id="adBar">
+  <div class="ad-track">
+    <span>احصل على كاش باك 5% من كل طلب</span><span>تفعيل فوري بعد الدفع</span><span>دعم فني على مدار الساعة</span>
+    <span>احصل على كاش باك 5% من كل طلب</span><span>تفعيل فوري بعد الدفع</span><span>دعم فني على مدار الساعة</span>
+  </div>
+  <button class="ad-close" onclick="document.getElementById('adBar').remove()" aria-label="إغلاق">✕</button>
+</div>
+
+<!-- الهيدر -->
+<header>
+  <div class="container header-row">
+    <div class="header-side">
+      <button class="icon-btn" onclick="toggleDrawer(true)" aria-label="القائمة">☰</button>
+      <button class="icon-btn" aria-label="بحث">🔍</button>
+    </div>
+    <a href="#" class="logo">
+      <img src="https://cdn.files.salla.network/theme/1001571749/e50fa51b-a8ba-4adc-81c0-69161eed1f2e.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'🌙',style:'font-size:32px'}))">
+      <span>مون بلس</span>
+    </a>
+    <div class="header-side end">
+      <button class="icon-btn" aria-label="تسجيل الدخول">👤</button>
+      <button class="icon-btn cart-count" aria-label="السلة">🛍️<b id="cartCount">0</b></button>
+    </div>
+  </div>
+</header>
+
+<!-- القائمة الجانبية -->
+<div class="drawer" id="drawer">
+  <div class="overlay" onclick="toggleDrawer(false)"></div>
+  <nav>
+    <div class="logo" style="margin-bottom:16px">🌙 مون بلس</div>
+    <a href="#">اشتراك تطبيقات بلس</a>
+    <a href="#">تطبيقات بلس للآيفون</a>
+    <a href="#">تطبيقات بلس للأندرويد</a>
+    <a href="#">أكواد التفعيل</a>
+    <a href="#">عروض البكج والتوفير</a>
+    <a href="#">المدونة</a>
+    <a href="#">تخفيضات</a>
+  </nav>
+</div>
+
+<!-- مسار التنقل -->
+<div class="breadcrumb">
+  <div class="container"><a href="#">الرئيسية</a> / <a href="#">اشتراك تطبيقات بلس</a> / باقة مون</div>
+</div>
+
+<!-- المنتج -->
+<main class="container product">
+  <div class="gallery">
+    <div class="main-img" id="mainImg">
+      <span class="promo-tag">عرض لفترة محدودة</span>
+      <div class="wish">
+        <button id="wishBtn" onclick="this.classList.toggle('on');this.textContent=this.classList.contains('on')?'♥':'♡'" aria-label="المفضلة">♡</button>
+        <button aria-label="مشاركة" onclick="share()">↗</button>
+      </div>
+      <div class="slide active"><div><div class="moon">🌙</div><h3>باقة مون</h3><p>اشتراك سنة كاملة</p></div></div>
+      <div class="slide"><div><div class="moon">📱</div><h3>متجر واحد</h3><p>آلاف التطبيقات والألعاب</p></div></div>
+      <div class="slide"><div><div class="moon">⚡</div><h3>تفعيل فوري</h3><p>خلال ثوانٍ من الدفع</p></div></div>
+      <div class="slide"><div><div class="moon">🛡️</div><h3>ضمان</h3><p>استرجاع خلال 24 ساعة</p></div></div>
+    </div>
+    <div class="thumbs" id="thumbs">
+      <button class="active" data-i="0">🌙</button>
+      <button data-i="1">📱</button>
+      <button data-i="2">⚡</button>
+      <button data-i="3">🛡️</button>
+    </div>
+  </div>
+
+  <div class="info">
+    <p class="sub-title">ما عجبك؟ رجّعه خلال 24 ساعة</p>
+    <h1>تطبيقات بلس للآيفون | باقة مون</h1>
+    <a href="#tabs" class="rating" onclick="openTab('reviews')">★★★★★ <small>(128 تقييم)</small></a>
+
+    <div class="price-row">
+      <span class="price"><span id="price">89</span> ر.س</span>
+      <span class="old-price"><span id="oldPrice">139</span> ر.س</span>
+      <span class="save"><i>🔥</i><span>وفّر <span id="saveAmt">50</span> ر.س</span></span>
+    </div>
+    <div class="stock">متوفر</div>
+
+    <div class="countdown">
+      <strong>⏳ ينتهي العرض خلال:</strong>
+      <div class="cd-boxes" id="countdown">
+        <div><span id="cd-d">00</span><small>يوم</small></div>
+        <div><span id="cd-h">00</span><small>ساعة</small></div>
+        <div><span id="cd-m">00</span><small>دقيقة</small></div>
+        <div><span id="cd-s">00</span><small>ثانية</small></div>
+      </div>
+    </div>
+
+    <div class="sold"><span class="t">🔥 عدد مرات الشراء</span><span class="n" id="sold">1,240</span></div>
+
+    <div class="options">
+      <label class="title">اختر المدة</label>
+      <div class="opt-grid">
+        <input type="radio" name="plan" id="p1" value="3" data-price="39" data-old="59"><label for="p1">3 أشهر<small>39 ر.س</small></label>
+        <input type="radio" name="plan" id="p2" value="6" data-price="59" data-old="89"><label for="p2">6 أشهر<small>59 ر.س</small></label>
+        <input type="radio" name="plan" id="p3" value="12" data-price="89" data-old="139" checked><label for="p3">سنة كاملة<small>89 ر.س</small></label>
+      </div>
+    </div>
+
+    <div class="buy-bar">
+      <div class="qty">
+        <button onclick="changeQty(1)" aria-label="زيادة">+</button>
+        <input id="qty" value="1" readonly aria-label="الكمية">
+        <button onclick="changeQty(-1)" aria-label="إنقاص">−</button>
+      </div>
+      <button class="btn-primary" onclick="addToCart()">🛍️ أضف للسلة</button>
+      <button class="btn-outline desktop-only" onclick="addToCart(true)">اشترِ الآن</button>
+    </div>
+
+    <!-- التبويبات -->
+    <div class="tabs" id="tabs">
+      <div class="tab-btns">
+        <button class="active" data-tab="details">📰 التفاصيل</button>
+        <button data-tab="reviews">★ التقييمات</button>
+      </div>
+      <div class="tab-panel active" id="tab-details">
+        <h2>وش يعني تطبيقات بلس؟</h2>
+        <p>متجر تطبيقات واحد على جوالك يجمع لك آلاف التطبيقات والألعاب بنسخ فيها مزايا إضافية، تثبّته مباشرة بدون كمبيوتر.</p>
+        <h4>وش تحصل مع باقة مون؟</h4>
+        <ul>
+          <li>اشتراك لمدة سنة كاملة من تاريخ الطلب</li>
+          <li>آلاف التطبيقات والألعاب في مكان واحد</li>
+          <li>تحديثات مستمرة طوال مدة الاشتراك</li>
+          <li>دعم فني عبر واتساب</li>
+        </ul>
+        <h4>طريقة الاستلام</h4>
+        <ul>
+          <li>ادفع واستلم الكود فوراً في صفحة الطلب وعلى إيميلك</li>
+          <li>افتح رابط التفعيل من جوالك واتبع الخطوات</li>
+        </ul>
+        <h4>معلومات مهمة قبل الشراء</h4>
+        <ul>
+          <li>للآيفون فقط، ولجهاز واحد</li>
+          <li>خلال 24 ساعة من الاستلام يمكنك طلب استرجاع المبلغ</li>
+          <li>بعد 24 ساعة لا يمكن الاسترجاع لأن المنتج رقمي</li>
+        </ul>
+      </div>
+      <div class="tab-panel" id="tab-reviews">
+        <p style="margin-bottom:8px">تقييمات تجريبية للعرض فقط</p>
+        <div class="review"><div class="head">عميل 1 <span>★★★★★</span></div><p>تفعيل سريع وخدمة ممتازة.</p></div>
+        <div class="review"><div class="head">عميل 2 <span>★★★★★</span></div><p>الدعم ردّ علي بسرعة.</p></div>
+        <div class="review"><div class="head">عميل 3 <span>★★★★☆</span></div><p>تجربة حلوة بشكل عام.</p></div>
+      </div>
+    </div>
+
+    <div class="features">
+      <div><b>🔒</b>تسوق آمن</div>
+      <div><b>💬</b>خدمة العملاء</div>
+      <div><b>⚡</b>تسليم فوري</div>
+    </div>
+    <div class="pay"><span>mada</span><span>VISA</span><span>Mastercard</span><span> Pay</span></div>
+  </div>
+</main>
+
+<!-- منتجات مقترحة -->
+<section class="container related">
+  <h2>قد يعجبك أيضًا</h2>
+  <div class="cards">
+    <div class="card"><span class="badge">خصم</span><div class="img">🤖</div><div class="body"><div class="cat">تطبيقات بلس</div><h3>باقة الأندرويد</h3><div class="p">69 ر.س<del>99</del></div><button onclick="addToCart()">أضف للسلة</button></div></div>
+    <div class="card"><div class="img">🎮</div><div class="body"><div class="cat">أكواد الألعاب</div><h3>كود ألعاب</h3><div class="p">25 ر.س</div><button onclick="addToCart()">أضف للسلة</button></div></div>
+    <div class="card"><span class="badge">جديد</span><div class="img">✨</div><div class="body"><div class="cat">الذكاء الاصطناعي</div><h3>اشتراك AI</h3><div class="p">49 ر.س</div><button onclick="addToCart()">أضف للسلة</button></div></div>
+    <div class="card"><div class="img">📦</div><div class="body"><div class="cat">عروض البكج</div><h3>بكج التوفير</h3><div class="p">129 ر.س<del>179</del></div><button onclick="addToCart()">أضف للسلة</button></div></div>
+  </div>
+</section>
+
+<!-- الفوتر -->
+<footer>
+  <div class="container">
+    <div class="foot-grid">
+      <div>
+        <div class="logo" style="margin-bottom:10px">🌙 مون بلس</div>
+        <p>مون بلس خيارك الأول للاشتراكات الرقمية والتفعيل الفوري.</p>
+      </div>
+      <div>
+        <h4>روابط تهمك</h4>
+        <a href="#">من نحن؟</a><a href="#">سياسة الاستخدام</a><a href="#">طريقة التفعيل</a><a href="#">الاقتراحات والشكاوى</a>
+      </div>
+      <div>
+        <h4>تواصل معنا</h4>
+        <a href="#">واتساب</a><a href="#">البريد الإلكتروني</a><a href="#">تيليجرام</a>
+      </div>
+    </div>
+    <div class="copy">© 2026 مون بلس — ديمو بأسلوب قالب ANGEL</div>
+  </div>
+</footer>
+
+<a class="wa" href="#" aria-label="واتساب">
+  <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.5-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.3.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.6-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.2Z"/></svg>
+</a>
+
+<div class="toast" id="toast">✅ <span id="toastMsg">تمت الإضافة للسلة</span></div>
+
+<script>
+  // شاشة التحميل
+  window.addEventListener('load', () => setTimeout(() => document.getElementById('loader').classList.add('hide'), 400));
+
+  // القائمة
+  function toggleDrawer(open){ document.getElementById('drawer').classList.toggle('open', open); }
+
+  // معرض الصور
+  const slides = document.querySelectorAll('#mainImg .slide');
+  const thumbs = document.querySelectorAll('#thumbs button');
+  let current = 0;
+  function showSlide(i){
+    current = i;
+    slides.forEach((s, k) => s.classList.toggle('active', k === i));
+    thumbs.forEach((t, k) => t.classList.toggle('active', k === i));
+  }
+  thumbs.forEach(t => t.addEventListener('click', () => showSlide(+t.dataset.i)));
+  setInterval(() => showSlide((current + 1) % slides.length), 4000);
+
+  // خيارات المدة + السعر
+  function updatePrice(){
+    const sel = document.querySelector('input[name=plan]:checked');
+    const qty = +document.getElementById('qty').value;
+    const p = +sel.dataset.price * qty, o = +sel.dataset.old * qty;
+    document.getElementById('price').textContent = p;
+    document.getElementById('oldPrice').textContent = o;
+    document.getElementById('saveAmt').textContent = o - p;
+  }
+  document.querySelectorAll('input[name=plan]').forEach(r => r.addEventListener('change', updatePrice));
+
+  function changeQty(d){
+    const q = document.getElementById('qty');
+    q.value = Math.min(10, Math.max(1, +q.value + d));
+    updatePrice();
+  }
+
+  // السلة
+  let cart = 0;
+  function addToCart(buyNow){
+    cart += buyNow ? 1 : +document.getElementById('qty').value || 1;
+    document.getElementById('cartCount').textContent = cart;
+    toast(buyNow ? 'جاري التحويل للدفع (ديمو)' : 'تمت الإضافة للسلة');
+  }
+  function toast(msg){
+    const t = document.getElementById('toast');
+    document.getElementById('toastMsg').textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._h);
+    t._h = setTimeout(() => t.classList.remove('show'), 2200);
+  }
+  function share(){
+    if (navigator.share) navigator.share({ title: document.title, url: location.href }).catch(() => {});
+    else toast('تم نسخ الرابط');
+  }
+
+  // التبويبات
+  function openTab(name){
+    document.querySelectorAll('.tab-btns button').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + name));
+  }
+  document.querySelectorAll('.tab-btns button').forEach(b => b.addEventListener('click', () => openTab(b.dataset.tab)));
+
+  // العداد التنازلي (3 أيام من أول زيارة)
+  let end;
+  try { end = +localStorage.getItem('moon_sale_end'); } catch (e) {}
+  if (!end || end < Date.now()) {
+    end = Date.now() + 3 * 864e5;
+    try { localStorage.setItem('moon_sale_end', end); } catch (e) {}
+  }
+  const pad = n => String(n).padStart(2, '0');
+  function tick(){
+    const s = Math.max(0, Math.floor((end - Date.now()) / 1000));
+    document.getElementById('cd-d').textContent = pad(Math.floor(s / 86400));
+    document.getElementById('cd-h').textContent = pad(Math.floor(s % 86400 / 3600));
+    document.getElementById('cd-m').textContent = pad(Math.floor(s % 3600 / 60));
+    document.getElementById('cd-s').textContent = pad(s % 60);
+  }
+  tick(); setInterval(tick, 1000);
+</script>
+</body>
+</html>
